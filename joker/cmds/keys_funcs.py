@@ -8,7 +8,7 @@ from joker.util.config import load_config
 from joker.util.default_root import DEFAULT_ROOT_PATH
 from joker.util.ints import uint32
 from joker.util.keychain import Keychain, bytes_to_mnemonic, generate_mnemonic, unlocks_keyring
-from joker.wallet.derive_keys import master_sk_to_farmer_sk, master_sk_to_pool_sk, master_sk_to_wallet_sk
+from joker.wallet.derive_keys import master_sk_to_chives_farmer_sk, master_sk_to_chives_pool_sk, master_sk_to_farmer_sk, master_sk_to_pool_sk, master_sk_to_wallet_sk
 
 keychain: Keychain = Keychain()
 
@@ -84,7 +84,12 @@ def show_all_keys(show_mnemonic: bool):
             "Farmer public key (m/12381/18444/0/0):",
             master_sk_to_farmer_sk(sk).get_g1(),
         )
+        print(
+            "Farmer public key (m/12381/9699/0/0):",
+            master_sk_to_chives_farmer_sk(sk).get_g1(),
+        )
         print("Pool public key (m/12381/18444/1/0):", master_sk_to_pool_sk(sk).get_g1())
+        print("Pool public key (m/12381/9699/1/0):", master_sk_to_chives_pool_sk(sk).get_g1())
         print(
             "First wallet address:",
             encode_puzzle_hash(create_puzzlehash_for_pk(master_sk_to_wallet_sk(sk, uint32(0)).get_g1()), prefix),

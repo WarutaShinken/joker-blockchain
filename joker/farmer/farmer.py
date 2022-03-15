@@ -45,6 +45,8 @@ from joker.util.hash import std_hash
 from joker.util.ints import uint8, uint16, uint32, uint64
 from joker.util.keychain import Keychain
 from joker.wallet.derive_keys import (
+    master_sk_to_chives_farmer_sk,
+    master_sk_to_chives_pool_sk,
     master_sk_to_farmer_sk,
     master_sk_to_pool_sk,
     master_sk_to_wallet_sk,
@@ -144,6 +146,9 @@ class Farmer:
         self.all_root_sks: List[PrivateKey] = [sk for sk, _ in await self.get_all_private_keys()]
         self._private_keys = [master_sk_to_farmer_sk(sk) for sk in self.all_root_sks] + [
             master_sk_to_pool_sk(sk) for sk in self.all_root_sks
+        ]
+        self._private_keys = self._private_keys + [master_sk_to_chives_farmer_sk(sk) for sk in self.all_root_sks] + [
+            master_sk_to_chives_pool_sk(sk) for sk in self.all_root_sks
         ]
 
         if len(self.get_public_keys()) == 0:
