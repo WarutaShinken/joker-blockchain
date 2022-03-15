@@ -3,6 +3,7 @@
 set -euo pipefail
 
 pip install setuptools_scm
+pip install requests
 # The environment variable JOKER_INSTALLER_VERSION needs to be defined.
 # If the env variable NOTARIZE and the username and password variables are
 # set, this will attempt to Notarize the signed DMG.
@@ -27,8 +28,10 @@ echo "Create dist/"
 sudo rm -rf dist
 mkdir dist
 
-echo "Create executables with pyinstaller"
+echo "Install pyinstaller and build bootloaders for M1"
 pip install pyinstaller==4.5
+
+echo "Create executables with pyinstaller"
 SPEC_FILE=$(python -c 'import joker; print(joker.PYINSTALLER_SPEC_PATH)')
 pyinstaller --log-level=INFO "$SPEC_FILE"
 LAST_EXIT_CODE=$?
@@ -68,8 +71,8 @@ if [ "$LAST_EXIT_CODE" -ne 0 ]; then
 	exit $LAST_EXIT_CODE
 fi
 
-if [ "$NOTARIZE" == true ]; then
-  electron-osx-sign Joker-darwin-x64/Joker.app --platform=darwin \
+if [ "$NOTARIZE" ]; then
+  electron-osx-sign Joker-darwin-arm64/Joker.app --platform=darwin \
   --hardened-runtime=true --provisioning-profile=jokerblockchain.provisionprofile \
   --entitlements=entitlements.mac.plist --entitlements-inherit=entitlements.mac.plist \
   --no-gatekeeper-assess
@@ -80,13 +83,13 @@ if [ "$LAST_EXIT_CODE" -ne 0 ]; then
 	exit $LAST_EXIT_CODE
 fi
 
-mv Joker-darwin-x64 ../build_scripts/dist/
+mv Joker-darwin-arm64 ../build_scripts/dist/
 cd ../build_scripts || exit
 
-DMG_NAME="Joker-$JOKER_INSTALLER_VERSION.dmg"
+DMG_NAME="Joker-$JOKER_INSTALLER_VERSION-arm64.dmg"
 echo "Create $DMG_NAME"
 mkdir final_installer
-electron-installer-dmg dist/Joker-darwin-x64/Joker.app Joker-$JOKER_INSTALLER_VERSION \
+electron-installer-dmg dist/Joker-darwin-arm64/Joker.app Joker-$JOKER_INSTALLER_VERSION-arm64 \
 --overwrite --out final_installer
 LAST_EXIT_CODE=$?
 if [ "$LAST_EXIT_CODE" -ne 0 ]; then
@@ -94,7 +97,9 @@ if [ "$LAST_EXIT_CODE" -ne 0 ]; then
 	exit $LAST_EXIT_CODE
 fi
 
-if [ "$NOTARIZE" == true ]; then
+ls -lh final_installer
+
+if [ "$NOTARIZE" ]; then
 	echo "Notarize $DMG_NAME on ci"
 	cd final_installer || exit
   notarize-cli --file=$DMG_NAME --bundle-id net.joker.blockchain \
@@ -108,7 +113,7 @@ fi
 #
 # Ask for username and password. password should be an app specific password.
 # Generate app specific password https://support.apple.com/en-us/HT204397
-# xcrun altool --notarize-app -f Chia-0.1.X.dmg --primary-bundle-id net.chia.blockchain -u username -p password
+# xcrun altool --notarize-app -f Joker-0.1.X.dmg --primary-bundle-id net.joker.blockchain -u username -p password
 # xcrun altool --notarize-app; -should return REQUEST-ID, use it in next command
 #
 # Wait until following command return a success message".
@@ -116,7 +121,7 @@ fi
 # It can take a while, run it every few minutes.
 #
 # Once that is successful, execute the following command":
-# xcrun stapler staple Chia-0.1.X.dmg
+# xcrun stapler staple Joker-0.1.X.dmg
 #
 # Validate DMG:
-# xcrun stapler validate Chia-0.1.X.dmg
+# xcrun stapler validate Joker-0.1.X.dmg
