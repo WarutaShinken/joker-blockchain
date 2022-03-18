@@ -69,6 +69,20 @@ $env:JOKER_INSTALLER_VERSION = "1.0.2"
 Write-Output "Joker Version is: $env:JOKER_INSTALLER_VERSION"
 Write-Output "------------------"
 
+Write-Output "Checking if madmax exists"
+Write-Output "   ---"
+if (Test-Path -Path .\madmax\) {
+    Write-Output "   madmax exists, moving to expected directory"
+    mv .\madmax\ .\venv\lib\site-packages\
+}
+
+# Write-Output "Checking if bladebit exists"
+# Write-Output "   ---"
+# if (Test-Path -Path .\bladebit\) {
+#    Write-Output "   bladebit exists, moving to expected directory"
+#    mv .\bladebit\ .\venv\lib\site-packages\
+# }
+
 Write-Output "------------------"
 Write-Output "Build joker-blockchain wheels"
 Write-Output "------------------"
