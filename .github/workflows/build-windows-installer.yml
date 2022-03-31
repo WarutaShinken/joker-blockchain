@@ -154,7 +154,8 @@ jobs:
       uses: actions/upload-artifact@v2.2.2
       with:
         name: Windows-Installers
-        path: ${{ github.workspace }}\joker-blockchain-gui\release-builds\windows-installer\JokerSetup-${{ steps.version_number.outputs.JOKER_INSTALLER_VERSION }}.exe
+        path: ${{ github.workspace }}\joker-blockchain-gui\release-builds\windows-installer\
+        #JokerSetup-${{ steps.version_number.outputs.JOKER_INSTALLER_VERSION }}.exe
 
     - name: Install AWS CLI
       if: steps.check_secrets.outputs.HAS_AWS_SECRET
@@ -177,12 +178,12 @@ jobs:
         ls ${{ github.workspace }}\joker-blockchain-gui\release-builds\windows-installer\
         aws s3 cp ${{ github.workspace }}\joker-blockchain-gui\release-builds\windows-installer\JokerSetup-${{ steps.version_number.outputs.JOKER_INSTALLER_VERSION }}.exe s3://download-joker-net/builds/
 
-    - name: Create Checksums
-      env:
-        JOKER_INSTALLER_VERSION: ${{ steps.version_number.outputs.JOKER_INSTALLER_VERSION }}
-      run: |
-         certutil.exe -hashfile ${{ github.workspace }}\joker-blockchain-gui\release-builds\windows-installer\JokerSetup-${{ steps.version_number.outputs.JOKER_INSTALLER_VERSION }}.exe SHA256 > ${{ github.workspace }}\joker-blockchain-gui\release-builds\windows-installer\JokerSetup-${{ steps.version_number.outputs.JOKER_INSTALLER_VERSION }}.exe.sha256
-         ls ${{ github.workspace }}\joker-blockchain-gui\release-builds\windows-installer\
+    # - name: Create Checksums
+    #   env:
+    #     JOKER_INSTALLER_VERSION: ${{ steps.version_number.outputs.JOKER_INSTALLER_VERSION }}
+    #   run: |
+    #      certutil.exe -hashfile ${{ github.workspace }}\joker-blockchain-gui\release-builds\windows-installer\JokerSetup-${{ steps.version_number.outputs.JOKER_INSTALLER_VERSION }}.exe SHA256 > ${{ github.workspace }}\joker-blockchain-gui\release-builds\windows-installer\JokerSetup-${{ steps.version_number.outputs.JOKER_INSTALLER_VERSION }}.exe.sha256
+    #      ls ${{ github.workspace }}\joker-blockchain-gui\release-builds\windows-installer\
 
     - name: Install py3createtorrent
       if: startsWith(github.ref, 'refs/tags/')
